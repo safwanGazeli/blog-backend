@@ -44,7 +44,7 @@ describe("Fullstack Blog app", () => {
   });
 
   test.each([
-    ["/", "Welcome to Masync Blog"],
+    ["/", "Welcome to My Blog"],
     ["/auth/login", "Login"],
     ["/auth/register", "Register"],
     ["/posts", "No posts available."],
