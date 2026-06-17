@@ -102,8 +102,8 @@ jobs:
         if: steps.deploy-check.outputs.enabled == 'true'
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
       - name: Write runtime environment file
@@ -124,8 +124,8 @@ jobs:
         if: steps.deploy-check.outputs.enabled == 'true'
         run: |
           remote_dir="${DEPLOY_DIR:-fullstack-blog-project}"
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "mkdir -p '$remote_dir'"
-          scp -i ~/.ssh/deploy_key app.env "$SSH_USER@$SSH_HOST:$remote_dir/.env"
+          ssh -i ~/.ssh/authorized_keys "$SSH_USER@$SSH_HOST" "mkdir -p '$remote_dir'"
+          scp -i ~/.ssh/authorized_keys app.env "$SSH_USER@$SSH_HOST:$remote_dir/.env"
 
       - name: Pull and restart container
         if: steps.deploy-check.outputs.enabled == 'true'
@@ -134,7 +134,7 @@ jobs:
           host_port="${APP_HOST_PORT:-3000}"
           ghcr_username="${GHCR_USERNAME:-$GITHUB_REPOSITORY_OWNER}"
 
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh -i ~/.ssh/authorized_keys "$SSH_USER@$SSH_HOST" \
             "IMAGE='$IMAGE' CONTAINER_NAME='$CONTAINER_NAME' APP_HOST_PORT='$host_port' DEPLOY_DIR='$remote_dir' GHCR_USERNAME='$ghcr_username' GHCR_TOKEN='$GHCR_TOKEN' bash -s" <<'EOF'
           set -euo pipefail
 
